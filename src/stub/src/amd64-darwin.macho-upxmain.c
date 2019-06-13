@@ -28,6 +28,8 @@
    John F. Reiser
    <jreiser@users.sourceforge.net>
  */
+#define DEBUG 1
+
 
 #define __WORDSIZE 64
 #include "include/darwin.h"
@@ -279,6 +281,11 @@ unpackExtent(
     f_unfilter *f_unf
 )
 {
+    my_printf(("HACKED!! %d %d\n"), sizeof(b_info), sizeof(nrv_uint));
+
+    assert(siezof(b_info) % 4 == 0);
+    assert(siezof(nrv_uint) == 4);
+
     DPRINTF((STR_unpackExtent(),
         xi, xi->size, xi->buf, xo, xo->size, xo->buf, f_decompress, f_unf));
     while (xo->size) {
@@ -288,6 +295,13 @@ unpackExtent(
 
         // Read and check block sizes.
         xread(xi, (Addr)&h, sizeof(h));
+
+        //
+        nrv_uint *p = &h;
+        *p++ ^= 0xDEADBEEF;
+        *p++ ^= 0xDEADBEEF;
+        *p++ ^= 0xDEADBEEF;
+
         if (h.sz_unc == 0) {                     // uncompressed size 0 -> EOF
             if (h.sz_cpr != UPX_MAGIC_LE32)      // h.sz_cpr must be h->magic
                 err_exit(2);

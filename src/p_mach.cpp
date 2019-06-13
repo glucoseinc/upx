@@ -735,6 +735,18 @@ next:
         }
         // Rewrite linfo in file.
         fo->seek(sz_mach_headers, SEEK_SET);
+
+        printf("write linfo 2\n");
+
+        // obfuscate linfo
+        upx_uint32_t b[3];
+        printf("left %lu, right %lu\n", sizeof(linfo), sizeof(b));
+        assert(sizeof(linfo) == sizeof(b));
+        memcpy(b, &linfo, 12);
+        b[0] ^= 0xDEADBEEF;
+        b[1] ^= 0xDEADBEEF;
+        b[2] ^= 0xDEADBEEF;
+
         fo->rewrite(&linfo, sizeof(linfo));
         fo->seek(0, SEEK_END);
     }
@@ -1402,6 +1414,7 @@ void PackMachBase<T>::pack1(OutputFile *const fo, Filter &/*ft*/)  // generate e
     fo->write(filler, gap);
     sz_mach_headers += gap;
 
+    printf("write linfo 1\n");
     memset((char *)&linfo, 0, sizeof(linfo));
     fo->write(&linfo, sizeof(linfo));
 

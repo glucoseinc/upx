@@ -28,6 +28,7 @@
    John F. Reiser
    <jreiser@users.sourceforge.net>
  */
+#define DEBUG 1
 
 
 #define __WORDSIZE 64
@@ -206,6 +207,7 @@ unpackExtent(
 
         // Read and check block sizes.
         xread(xi, (unsigned char *)&h, sizeof(h));
+
         if (h.sz_unc == 0) {                     // uncompressed size 0 -> EOF
             if (h.sz_cpr != UPX_MAGIC_LE32)      // h.sz_cpr must be h->magic
                 err_exit(2);
@@ -623,6 +625,14 @@ upx_main(
     Mach_header **const mhdrpp  // Out: *mhdrpp= &real Mach_header
 )
 {
+    // de-obfusucate header
+    DPRINTF("HACKED!! %%d %%d\n", sizeof(struct l_info), sizeof(nrv_uint));
+
+    nrv_uint *p = (nrv_uint *)&li;
+    p[0] ^= 0xDEADBEEF;
+    p[1] ^= 0xDEADBEEF;
+    p[2] ^= 0xDEADBEEF;
+
     Mach_thread_state *ts = 0;
     unsigned *hatch;
     off_t_upx_stub fat_offset = 0;
