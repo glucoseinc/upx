@@ -154,7 +154,8 @@ unpackExtent(
     Extent *const xi,  // input
     Extent *const xo,  // output
     f_expand *const f_exp,
-    f_unfilter *f_unf
+    f_unfilter *f_unf,
+    nrv_byte flag
 )
 {
     while (xo->size) {
@@ -166,6 +167,20 @@ unpackExtent(
 
         // Read and check block sizes.
         xread(xi, (char *)&h, sizeof(h));
+
+        // de-obfusucate header
+        // DPRINTF("de-obfusucate!! %%d %%d\n", sizeof(h), sizeof(nrv_uint));
+
+        nrv_uint *p = (nrv_uint *)&h;
+        if (flag == 0) {
+            flag = 2;
+        } else {
+           p[0] ^= 0x01234567;
+        }
+        // p[1] ^= 0xDEADBEEF;
+        // p[2] ^= 0xDEADBEEF;
+        DPRINTF("!!! unpackExtent -> %%x %%p %%p  flag: %%x \n", p[0], f_exp, f_unf, flag);
+
         DPRINTF("h.sz_unc=%%x  h.sz_cpr=%%x  h.b_method=%%x\\n",
             h.sz_unc, h.sz_cpr, h.b_method);
         if (h.sz_unc == 0) {                     // uncompressed size 0 -> EOF
@@ -438,6 +453,8 @@ do_xmap(
     );
     DPRINTF("do_xmap reloc=%%p\\n", reloc);
     int j;
+    nrv_byte flag = 0;
+
     for (j=0; j < ehdr->e_phnum; ++phdr, ++j)
     if (xi && PT_PHDR==phdr->p_type) {
         auxv_up(av, AT_PHDR, phdr->p_vaddr + reloc);
@@ -465,7 +482,11 @@ do_xmap(
             err_exit(8);
         }
         if (xi) {
-            unpackExtent(xi, &xo, f_exp, f_unf);
+            DPRINTF("!?!? unpackExtent 2\\n", 2);
+            unpackExtent(xi, &xo, f_exp, f_unf, flag);
+            if(flag == 0)
+                flag = 1;
+            DPRINTF("!?!? /unpackExtent 2> \\n", 2);
         }
         // Linux does not fixup the low end, so neither do we.
         //if (PROT_WRITE & prot) {
@@ -544,7 +565,9 @@ upx_main(  // returns entry address
     xi1.buf = CONST_CAST(char *, bi); xi1.size = sz_compressed;
 
     // ehdr = Uncompress Ehdr and Phdrs
-    unpackExtent(&xi2, &xo, f_exp, 0);  // never filtered?
+    DPRINTF("!?!? unpackExtent 1 \\n", 1);
+
+    unpackExtent(&xi2, &xo, f_exp, 0, 0);  // never filtered?
 
 #if defined(__x86_64) || defined(__aarch64__)  //{
     Elf64_Addr *const p_reloc = &elfaddr;

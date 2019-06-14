@@ -425,6 +425,15 @@ void PackUnix::packExtent(
                 tmp.b_cto8 = ft->cto;
             }
         }
+
+        assert(sizeof(b_info) == 12);
+        upx_uint32_t before = *(upx_uint32_t *)&tmp;
+        upx_uint32_t *p = (upx_uint32_t *)&tmp;
+        p[0] ^= 0x01234567;
+        // p[1] ^= 0xDEADBEEF;
+        // p[2] ^= 0xDEADBEEF;
+        printf("packExtent %x -> %x\n", before, p[0]);
+
         fo->write(&tmp, sizeof(tmp));
         b_len += sizeof(b_info);
 
