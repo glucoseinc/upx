@@ -432,7 +432,7 @@ void PackUnix::packExtent(
         p[0] ^= 0x01234567;
         // p[1] ^= 0xDEADBEEF;
         // p[2] ^= 0xDEADBEEF;
-        printf("packExtent %x -> %x\n", before, p[0]);
+//        printf("packExtent %x -> %x\n", before, p[0]);
 
         fo->write(&tmp, sizeof(tmp));
         b_len += sizeof(b_info);
