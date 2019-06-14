@@ -427,7 +427,7 @@ void PackUnix::packExtent(
         }
 
         assert(sizeof(b_info) == 12);
-        upx_uint32_t before = *(upx_uint32_t *)&tmp;
+        // upx_uint32_t before = *(upx_uint32_t *)&tmp;
         upx_uint32_t *p = (upx_uint32_t *)&tmp;
         p[0] ^= 0x01234567;
         // p[1] ^= 0xDEADBEEF;
