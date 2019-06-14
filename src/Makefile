@@ -104,13 +104,13 @@ else
 endif
 
 CHECK_WHITESPACE =
-ifeq ($(shell uname),Linux)
-CHECK_WHITESPACE = $(top_srcdir)/src/stub/scripts/check_whitespace.sh $(top_srcdir)
-ifneq ($(wildcard $(top_srcdir)/.git/.),)
-CHECK_WHITESPACE = $(top_srcdir)/src/stub/scripts/check_whitespace_git.sh $(top_srcdir)
-endif
-check-whitespace : ; $(CHECK_WHITESPACE)
-endif
+# ifeq ($(shell uname),Linux)
+# CHECK_WHITESPACE = $(top_srcdir)/src/stub/scripts/check_whitespace.sh $(top_srcdir)
+# ifneq ($(wildcard $(top_srcdir)/.git/.),)
+# CHECK_WHITESPACE = $(top_srcdir)/src/stub/scripts/check_whitespace_git.sh $(top_srcdir)
+# endif
+# check-whitespace : ; $(CHECK_WHITESPACE)
+# endif
 .PHONY: check-whitespace
 
 mostlyclean clean distclean maintainer-clean:
